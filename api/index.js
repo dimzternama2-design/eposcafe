@@ -17,10 +17,11 @@ try {
   console.error('Gagal menginisialisasi Firebase Admin SDK:', error.message);
 }
 
-const db = admin.firestore ? admin.firestore() : null;
+const db = admin.apps.length ? admin.firestore() : null;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+// Folder public ada di root project, bukan di dalam folder api
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // API Endpoint: Mendapatkan daftar menu kafe
 app.get('/api/menu', (req, res) => {
@@ -60,8 +61,11 @@ app.post('/api/checkout', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server EPOS Kafe berjalan di http://localhost:${PORT}`);
-});
+// Listener hanya dipakai saat dijalankan lokal, bukan di Vercel (serverless)
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server EPOS Kafe berjalan di http://localhost:${PORT}`);
+  });
+}
 
 module.exports = app;
